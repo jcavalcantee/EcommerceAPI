@@ -21,7 +21,7 @@ public class AuthController {
     public ResponseEntity<?> signin(@RequestBody CredencialDTO dto) throws Exception {
         if (checkIfParamsIsNotNull(dto))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Requisição inválida");
-        var token = authService.signin(dto);
+        var token = authService.authentication(dto);
         if(token == null)
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Requisição inválida");
         return token;

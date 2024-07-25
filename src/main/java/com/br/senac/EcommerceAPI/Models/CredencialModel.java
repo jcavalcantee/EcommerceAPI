@@ -1,8 +1,10 @@
 package com.br.senac.EcommerceAPI.Models;
 
 import com.br.senac.EcommerceAPI.DTO.AtualizarCredencialDTO;
+import com.br.senac.EcommerceAPI.DTO.CadastroUsuarioDTO;
 import com.br.senac.EcommerceAPI.DTO.CredencialDTO;
 import com.br.senac.EcommerceAPI.DTO.UsuarioInfoDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,12 +24,14 @@ import java.util.List;
 @Entity
 @Table(name = "credencial")
 public class CredencialModel implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false, unique = true)
     private String email;
     @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String senha;
     private Long idUsuario;
     @Column(nullable = false)
@@ -54,6 +58,11 @@ public class CredencialModel implements UserDetails {
     }
 
     public CredencialModel(AtualizarCredencialDTO dto) {
+        this.email = dto.getEmail();
+        this.senha = dto.getSenha();
+    }
+
+    public CredencialModel(CadastroUsuarioDTO dto) {
         this.email = dto.getEmail();
         this.senha = dto.getSenha();
     }
