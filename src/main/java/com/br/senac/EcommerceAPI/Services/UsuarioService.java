@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -40,6 +41,9 @@ public class UsuarioService {
 
     private UsuarioModel usuario;
     private EnderecoUsuario endereco;
+
+    private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
 
     /**
      * Metódo que retorna os dados do usuário que está autenticado
@@ -103,7 +107,7 @@ public class UsuarioService {
 
             CredencialModel credencialModel = new CredencialModel();
             credencialModel.setEmail(dto.getEmail());
-            credencialModel.setSenha(dto.getSenha());
+            credencialModel.setSenha(passwordEncoder(dto.getSenha()));
             credencialModel.setAdmin(false);
             credencialModel.setIdUsuario(usuarioSalvo.getId());
             credencialRepository.save(credencialModel);
@@ -126,6 +130,10 @@ public class UsuarioService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String passwordEncoder(String senha) {
+        return passwordEncoder.encode(senha);
     }
 
     private Date ajustarData(Date data) throws ParseException {
