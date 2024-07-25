@@ -10,6 +10,9 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,7 +20,7 @@ import java.util.List;
 
 @Getter @Setter
 @Service
-public class CredencialService {
+public class CredencialService implements UserDetailsService {
     //injetar dependecia - instanciar
     @Autowired
     private CredencialRepository credencialRepository;
@@ -103,5 +106,14 @@ public class CredencialService {
         } catch (Exception e) {
             return new ResponseEntity<>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        CredencialModel credencial = credencialRepository.findByUsuario(username);
+        if(credencial != null) {
+            return credencial;
+        }
+        throw new UsernameNotFoundException("Usuário não encontrado com o email " + username);
     }
 }
