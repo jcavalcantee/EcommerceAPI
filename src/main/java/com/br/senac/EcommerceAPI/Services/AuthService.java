@@ -1,6 +1,7 @@
 package com.br.senac.EcommerceAPI.Services;
 
-import com.br.senac.EcommerceAPI.DTO.CredencialDTO;
+import com.br.senac.EcommerceAPI.DTO.AccountCredentialsDTO;
+import com.br.senac.EcommerceAPI.DTO.TokenDTO;
 import com.br.senac.EcommerceAPI.Models.CredencialModel;
 import com.br.senac.EcommerceAPI.Repositories.CredencialRepository;
 import com.br.senac.EcommerceAPI.security.JwtTokenProvider;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +25,31 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
 
-    public ResponseEntity<?> authentication(CredencialDTO dto) {
-        CredencialModel credencial = credencialRepository.findByUsuario(dto.getEmail());
-        if(passwordEncoder.matches(dto.getSenha(), credencial.getPassword())) {
-            String token = tokenProvider.generateToken(credencial);
-            return new ResponseEntity<>(token, HttpStatus.OK);
-        }
+    public ResponseEntity<?> authentication(AccountCredentialsDTO dto) throws Exception {
 
+        try {
+            CredencialModel user = credencialRepository.findByUsuario(dto.getEmail());
+            if(passwordEncoder.matches(dto.getSenha(), user.getPassword())) {
+                var tokenResponse = new TokenDTO();
+                tokenResponse = tokenProvider.createAccessToken(user.getEmail(), user.getRoles());
+                return ResponseEntity.ok(tokenResponse);
+
+            }
+        } catch (Exception e) {
+            throw new Exception(e);
+        }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity refreshToken(String username, String refreshToken) {
+        var user = credencialRepository.findByUsuario(username);
+
+        var tokenResponse = new TokenDTO();
+        if (user != null) {
+            tokenResponse = tokenProvider.refreshToken(refreshToken);
+        } else {
+            throw new UsernameNotFoundException("Username " + username + " not found!");
+        }
+        return ResponseEntity.ok(tokenResponse);
     }
 }
