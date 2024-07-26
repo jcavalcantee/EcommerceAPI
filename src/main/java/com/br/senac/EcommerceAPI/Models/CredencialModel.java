@@ -1,9 +1,6 @@
 package com.br.senac.EcommerceAPI.Models;
 
-import com.br.senac.EcommerceAPI.DTO.AtualizarCredencialDTO;
-import com.br.senac.EcommerceAPI.DTO.CadastroUsuarioDTO;
-import com.br.senac.EcommerceAPI.DTO.CredencialDTO;
-import com.br.senac.EcommerceAPI.DTO.UsuarioInfoDTO;
+import com.br.senac.EcommerceAPI.DTO.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -35,11 +32,11 @@ public class CredencialModel implements UserDetails {
     private String senha;
     private Long idUsuario;
     @Column(nullable = false)
-    private boolean admin;
-    private Boolean isAccountNonExpired;
-    private Boolean isAccountNonLocked;
-    private Boolean isCredentialsNonExpired;
-    private Boolean isEnabled;
+    private Boolean admin = true;
+    private Boolean isAccountNonExpired = true;
+    private Boolean isAccountNonLocked = true;
+    private Boolean isCredentialsNonExpired = true;
+    private Boolean isEnabled = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_permission", joinColumns = {@JoinColumn(name = "id_credencial")},
@@ -92,21 +89,21 @@ public class CredencialModel implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return this.isAccountNonExpired;
+        return Boolean.TRUE.equals(this.isAccountNonExpired);
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.isAccountNonLocked;
+        return Boolean.TRUE.equals(this.isAccountNonLocked);
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return isCredentialsNonExpired;
+        return Boolean.TRUE.equals(this.isCredentialsNonExpired);
     }
 
     @Override
     public boolean isEnabled() {
-        return isEnabled;
+        return Boolean.TRUE.equals(this.isEnabled);
     }
 }
